@@ -24,16 +24,51 @@ int MIDDLE = WIDTH/2;
 
 
 //METHODS FOR AI
-int minMax(int tempBoard[HEIGHT][WIDTH], int depth, bool maximizingPlayer);
-//int (*placePiece(int col, int board[HEIGHT][WIDTH], bool maximizingPlayer))[WIDTH];
+//int (*placePiece(int col, int board[HEIGHT][WIDTH], bool maximizingPlayer))[WIDTH]; //this returns a double array
+int minMax(int tempBoard[][WIDTH], int depth, bool maximizingPlayer);
 int scoreBoard(int (*tempBoard)[WIDTH]);
-void placePiece(int col, int board[HEIGHT][WIDTH],bool maximizingPlayer);
+void placePiece(int col, int board[][WIDTH],bool maximizingPlayer);
+
+void modify_array1(int (&a)[HEIGHT][WIDTH]);
+void modify_array2(int (*a)[WIDTH]);
+void modify_array3(int (*a)[WIDTH]);
+void print(int board[][WIDTH]);
 
 
 
+void printTempArray(int board[][WIDTH]);
 
-int scoreBoard(int (*tempBoard)[WIDTH]){
+int main(){
+	initilizeBoard();
+	//for(int i = 0; i<HEIGHT*WIDTH; i++)
+	placePiece(minMax(BOARD,2,true)); //This is the AI's turn it should pick 3 so it gets the win
 
+	/*initilizeBoard();
+	//modify_array1(BOARD);
+	int (*tempBoard)[WIDTH] = BOARD;
+ 	//modify_array2(tempBoard);
+ 	modify_array3(tempBoard);*/
+	//print();
+
+
+	//Below is my last test
+	/*placePiece(MIDDLE);
+	printTempArray(BOARD);
+	print();*/
+	return 0;
+}
+
+void printTempArray(int board[][WIDTH]){
+	for(int x =0; x<HEIGHT; x++){
+		for(int y =0; y<WIDTH;y++){
+			std::cout<<board[x][y]<<" ";
+		}
+		std::cout<<std::endl;
+	}
+
+}
+
+int scoreBoard(int tempBoard[][WIDTH]){
 	for(int x = 0; x<HEIGHT; x++) 	//Horizontail
 		for(int y = 0; y<WIDTH-3; y++)
 			if(tempBoard[0+x][0+y]==tempBoard[0+x][1+y] && tempBoard[0+x][1+y]==tempBoard[0+x][2+y] && tempBoard[0+x][2+y]==tempBoard[0+x][3+y] && tempBoard[0+x][0+y]!=2)
@@ -54,21 +89,24 @@ int scoreBoard(int (*tempBoard)[WIDTH]){
 }
 
 
-int minMax(int board[HEIGHT][WIDTH], int depth, bool maximizingPlayer){
+int minMax(int board[][WIDTH], int depth, bool maximizingPlayer){
 	if (depth <= 0)
 		return 0;
 	int maxScore;
 	int chosenCol;
 	int score;
-	
 
 	if (maximizingPlayer){		//so this is for the AI
 		maxScore = -100;
 		for (int col = 0; col<WIDTH; col++){
-			int (*tempBoard)[WIDTH] = board;
+			int tempBoard[HEIGHT][WIDTH];
+			for(int x = 0; x < HEIGHT; x++){
+				for(int y = 0; y < WIDTH; y++){
+					tempBoard[x][y] = board[x][y];
+				}
+			}
 			placePiece(col,tempBoard,true);	//I need this to be by refrence instead of by value
 			score = scoreBoard(tempBoard);
-
 			if (score>maxScore){
 				maxScore = score;
 				chosenCol = col;
@@ -79,22 +117,24 @@ int minMax(int board[HEIGHT][WIDTH], int depth, bool maximizingPlayer){
 	else{						//so this is for the player
 		maxScore = 100;
 		for (int col = 0; col<WIDTH; col++){
-			int (*tempBoard)[WIDTH] = board;
-			placePiece(col,tempBoard,true);
+			int tempBoard[HEIGHT][WIDTH];
+			for(int x = 0; x < HEIGHT; x++){
+				for(int y = 0; y < WIDTH; y++){
+					tempBoard[x][y] = board[x][y];
+				}
+			}
+			placePiece(col,tempBoard,false);
 			score = -scoreBoard(tempBoard);
 			if (score<maxScore){
 				maxScore = score;
 				chosenCol = col;
 			}
-			//minMax(tempBoard,depth-1,true);
 		} 
 		return chosenCol;	 	
 	}
 }
 
-//int (*placePiece(int col, int board[HEIGHT][WIDTH], bool maximizingPlayer))[WIDTH]
-
-void placePiece(int col, int board[HEIGHT][WIDTH],bool maximizingPlayer){
+void placePiece(int col, int board[][WIDTH],bool maximizingPlayer){
 	if(col < 0 || col>=WIDTH) 		//checks if a player has gone over bounds
 		return;// board;
 	if (turns == WIDTH*HEIGHT)		//checks if a the players have tied
@@ -106,21 +146,10 @@ void placePiece(int col, int board[HEIGHT][WIDTH],bool maximizingPlayer){
 	
 	for(int x = 0; x < HEIGHT; x++){
 		if(board[x][col] == 2){ 			//if spot is empty
-			board[x][col] = maximizingPlayer;	//put checker there
-			//print();						//print the board
-			//checkForAWinner();				//check if they won
-			//nextPlayer();					//go to next player 
-			/*
-			for(int x; x<HEIGHT; x++){
-				for (int y; y<WIDTH; y++){
-					std::cout<<board[x][y];
-				}
-				std::cout<<std::endl;
-			}*/
+			board[x][col] = !maximizingPlayer;	//put checker there
 			break;							//End the loop
 		}
 	}
-
 	return;// board;
 }
 
@@ -132,29 +161,6 @@ void placePiece(int col, int board[HEIGHT][WIDTH],bool maximizingPlayer){
 
 
 
-int main(){
-	initilizeBoard();
-	//std::cout<<minMax(BOARD,3,true);
-	placePiece(minMax(BOARD,3,true));
-	print();
-
-	/*int (*tempBoard)[WIDTH] = placePiece(MIDDLE,BOARD,true);
-	
-	for(int x = 0; x<HEIGHT; x++){
-		for(int y = 0; y<WIDTH; y++){
-			std::cout<<tempBoard[x][y];
-		}
-		std::cout<<std::endl;
-	}*/
-	
-
-	//placePiece(minMax(BOARD,3,true));
-	/*while(scoreBoard()==0){
-		int x;
-		std::cin >> x;
-		placePiece(x);*/		//This is so that you can place pieces with text or what ever
-	return 0;
-}
 
 
 
