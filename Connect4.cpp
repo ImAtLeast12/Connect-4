@@ -5,6 +5,7 @@
 #define HEIGHT 6
 #define WIDTH 7
 
+char playerName[2][5] = {"AI", "USER"};
 char pieceName[3][2] = {"X","O","-"};
 char winCondition[4][13]={"Tie","Horizontaily", "Verticaly","Diagonaly"};
 
@@ -34,38 +35,15 @@ void modify_array2(int (*a)[WIDTH]);
 void modify_array3(int (*a)[WIDTH]);
 void print(int board[][WIDTH]);
 
-
-
-void printTempArray(int board[][WIDTH]);
-
 int main(){
 	initilizeBoard();
-	//for(int i = 0; i<HEIGHT*WIDTH; i++)
-	placePiece(minMax(BOARD,2,true)); //This is the AI's turn it should pick 3 so it gets the win
-
-	/*initilizeBoard();
-	//modify_array1(BOARD);
-	int (*tempBoard)[WIDTH] = BOARD;
- 	//modify_array2(tempBoard);
- 	modify_array3(tempBoard);*/
-	//print();
-
-
-	//Below is my last test
-	/*placePiece(MIDDLE);
-	printTempArray(BOARD);
-	print();*/
+	while(scoreBoard()==0){
+		placePiece(minMax(BOARD,8,true));
+  		int x;
+  		std::cin >> x;
+ 		placePiece(x);
+ 	}
 	return 0;
-}
-
-void printTempArray(int board[][WIDTH]){
-	for(int x =0; x<HEIGHT; x++){
-		for(int y =0; y<WIDTH;y++){
-			std::cout<<board[x][y]<<" ";
-		}
-		std::cout<<std::endl;
-	}
-
 }
 
 int scoreBoard(int tempBoard[][WIDTH]){
@@ -91,7 +69,7 @@ int scoreBoard(int tempBoard[][WIDTH]){
 
 int minMax(int board[][WIDTH], int depth, bool maximizingPlayer){
 	if (depth <= 0)
-		return 0;
+		return scoreBoard(board);
 	int maxScore;
 	int chosenCol;
 	int score;
@@ -99,17 +77,19 @@ int minMax(int board[][WIDTH], int depth, bool maximizingPlayer){
 	if (maximizingPlayer){		//so this is for the AI
 		maxScore = -100;
 		for (int col = 0; col<WIDTH; col++){
-			int tempBoard[HEIGHT][WIDTH];
-			for(int x = 0; x < HEIGHT; x++){
-				for(int y = 0; y < WIDTH; y++){
-					tempBoard[x][y] = board[x][y];
+			if(board[HEIGHT-1][col]==2){
+				int tempBoard[HEIGHT][WIDTH];
+				for(int x = 0; x < HEIGHT; x++){
+					for(int y = 0; y < WIDTH; y++){
+						tempBoard[x][y] = board[x][y];
+					}
 				}
-			}
-			placePiece(col,tempBoard,true);	//I need this to be by refrence instead of by value
-			score = scoreBoard(tempBoard);
-			if (score>maxScore){
-				maxScore = score;
-				chosenCol = col;
+				placePiece(col,tempBoard,true);	//I need this to be by refrence instead of by value
+				score = minMax(tempBoard,depth-1,false);
+				if (score>maxScore){
+					maxScore = score;
+					chosenCol = col;
+				}
 			}
 		} 
 		return chosenCol;	
@@ -118,18 +98,20 @@ int minMax(int board[][WIDTH], int depth, bool maximizingPlayer){
 		maxScore = 100;
 		for (int col = 0; col<WIDTH; col++){
 			int tempBoard[HEIGHT][WIDTH];
-			for(int x = 0; x < HEIGHT; x++){
-				for(int y = 0; y < WIDTH; y++){
-					tempBoard[x][y] = board[x][y];
+			if(board[HEIGHT-1][col]==2){
+				for(int x = 0; x < HEIGHT; x++){
+					for(int y = 0; y < WIDTH; y++){
+						tempBoard[x][y] = board[x][y];
+					}
+				}
+				placePiece(col,tempBoard,false);
+				score = -minMax(tempBoard,depth-1,true);
+				if (score<maxScore){
+					maxScore = score;
+					chosenCol = col;
 				}
 			}
-			placePiece(col,tempBoard,false);
-			score = -scoreBoard(tempBoard);
-			if (score<maxScore){
-				maxScore = score;
-				chosenCol = col;
-			}
-		} 
+		}
 		return chosenCol;	 	
 	}
 }
@@ -153,25 +135,6 @@ void placePiece(int col, int board[][WIDTH],bool maximizingPlayer){
 	return;// board;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 int getPlayer(){
 	return turns%2;
 }
@@ -184,7 +147,7 @@ void checkForAWinner(){
 	if(scoreBoard()==1)
 		std::cout<<"PLayers Tied"<<std::endl;
 	if(scoreBoard()>=2)	
-		std::cout<<"Player "<< getPlayer() <<" wins " <<winCondition[scoreBoard()-1]<<std::endl;
+		std::cout<<"Player "<< playerName[getPlayer()] <<" wins " <<winCondition[scoreBoard()-1]<<std::endl;
 }
 
 void print(){
